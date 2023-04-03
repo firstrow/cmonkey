@@ -8,13 +8,13 @@ include_directories(include src)
 set(SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/include/cwalk/cwalk.c
     ${PROJECT_SOURCE_DIR}/include/array_list/array_list.c
-    ${PROJECT_SOURCE_DIR}/src/main/main.c
+    ${PROJECT_SOURCE_DIR}/src/parser/parser.c
 )
 
-add_executable(${SHORT_NAME} ${SOURCE_FILES})
+add_executable(${SHORT_NAME} ${SOURCE_FILES} ${PROJECT_SOURCE_DIR}/src/main/main.c)
+add_executable(ctests ${SOURCE_FILES} ${PROJECT_SOURCE_DIR}/src/tests/tests.c)
 
 target_link_libraries(${SHORT_NAME} m)
 
 find_package (Threads REQUIRED)
 target_link_libraries(${SHORT_NAME} ${CMAKE_THREAD_LIBS_INIT})
-
