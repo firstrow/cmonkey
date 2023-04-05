@@ -1,6 +1,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include <stdbool.h>
+
 typedef enum
 {
     T_ILLEGAL = 0,
@@ -20,7 +22,14 @@ typedef enum
     T_RBRACE,
     T_FUNCTION,
     T_LET,
-} token_type;
+
+    T_MAX_TOKENS
+} token_t;
+
+typedef struct {
+    token_t token;
+    char *literal;
+} token;
 
 typedef struct {
     char *input;
@@ -28,11 +37,13 @@ typedef struct {
     int pos;
     int readPos;
     unsigned char ch;
+    bool eof;
 } lexer;
 
-extern const char * const tokens[];
+extern const char * const TOKENS[];
 
 lexer parser_new(char *str);
 void lexer_read_char(lexer *l);
+token lexer_next_token(lexer *l);
 
 #endif // PARSER_H
