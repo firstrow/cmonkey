@@ -14,6 +14,12 @@ const char *const TOKENS[] = {
     [T_INT] = "INT",
     [T_ASSIGN] = "=",
     [T_PLUS] = "+",
+    [T_MINUS] = "-",
+    [T_BANG] = "!",
+    [T_ASTERISK] = "*",
+    [T_SLASH] = "/",
+    [T_LT] = "<",
+    [T_GT] = ">",
     [T_COMMA] = ",",
     [T_SEMICOLON] = ";",
     [T_LPAREN] = "(",
@@ -22,11 +28,21 @@ const char *const TOKENS[] = {
     [T_RBRACE] = "}",
     [T_FUNCTION] = "FUNCTION",
     [T_LET] = "LET",
+    [T_TRUE] = "TRUE",
+    [T_FALSE] = "FALSE",
+    [T_IF] = "IF",
+    [T_ELSE] = "ELSE",
+    [T_RETURN] = "RETURN",
 };
 
 static const char *const KEYWORDS[] = {
     [T_LET] = "let",
     [T_FUNCTION] = "fn",
+    [T_TRUE] = "true",
+    [T_FALSE] = "false",
+    [T_IF] = "if",
+    [T_ELSE] = "else",
+    [T_RETURN] = "return",
 };
 
 lexer parser_new(char *str)
@@ -104,13 +120,11 @@ token lexer_next_token(lexer *l)
     char ch_buf[2] = "";
     sprintf(ch_buf, "%c", l->ch);
 
-    // check common cases first
-    int checks[] = {T_ASSIGN, T_PLUS, T_COMMA, T_SEMICOLON, T_LPAREN, T_RPAREN, T_LBRACE, T_RBRACE};
-
-    for (int i = 0; i <= 7; i++) {
-        if (strcmp(TOKENS[checks[i]], ch_buf) == 0) {
+    // operators / characters
+    for (int i = 0; i < T_MAX_TOKENS; i++) {
+        if (strcmp(TOKENS[i], ch_buf) == 0) {
             return (token){
-                .token = checks[i],
+                .token = i,
                 .literal = strdup(ch_buf),
             };
         }
@@ -125,9 +139,10 @@ token lexer_next_token(lexer *l)
             sprintf(ch_buf, "%c", l->ch);
             strcat(literal_buf, ch_buf);
 
-            lexer_read_char(l);
-            if (is_whitespace(l->ch) || l->ch == 0)
+            if (!lexer_peek_next_char_is(l, &is_letter))
                 break;
+
+            lexer_read_char(l);
         }
 
         // keywords

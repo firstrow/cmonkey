@@ -82,6 +82,68 @@ static void test_lexer_next_token()
     assert(t.token == T_LET);
 }
 
+static void test_lexer_more_operators()
+{
+    char *input = "=+-!*/<>";
+    lexer l = parser_new(input);
+
+    token t = lexer_next_token(&l);
+    assert(t.token == T_ASSIGN);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_PLUS);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_MINUS);
+}
+
+static void test_if_else_return()
+{
+    char *input = "if (5 < 10) {   \n\
+            return true;           \n\
+        } else {                   \n\
+            return false;          \n\
+        }                          \n\
+        ";
+    lexer l = parser_new(input);
+
+    token t = lexer_next_token(&l);
+    assert(t.token == T_IF);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_LPAREN);
+    assert(strcmp(t.literal, "(") == 0);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_INT);
+    assert(strcmp(t.literal, "5") == 0);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_LT);
+    assert(strcmp(t.literal, "<") == 0);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_INT);
+    assert(strcmp(t.literal, "10") == 0);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_RPAREN);
+    assert(strcmp(t.literal, ")") == 0);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_LBRACE);
+    assert(strcmp(t.literal, "{") == 0);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_RETURN);
+    assert(strcmp(t.literal, "return") == 0);
+
+    t = lexer_next_token(&l);
+    printf("---%s\r\n", t.literal);
+    assert(t.token == T_TRUE);
+    assert(strcmp(t.literal, "true") == 0);
+}
+
 void handler(int sig)
 {
     void *array[10];
@@ -99,6 +161,8 @@ int main(int argc, char *argv[])
 
     test_lexer_read_char();
     test_lexer_next_token();
+    test_lexer_more_operators();
+    test_if_else_return();
 
     printf("all tests passed\r\n");
 }

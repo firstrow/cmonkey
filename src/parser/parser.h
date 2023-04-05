@@ -13,6 +13,12 @@ typedef enum
     // operators
     T_ASSIGN,
     T_PLUS,
+    T_MINUS,
+    T_BANG,
+    T_ASTERISK,
+    T_SLASH,
+    T_LT,
+    T_GT,
     // delimiters
     T_COMMA,
     T_SEMICOLON,
@@ -20,8 +26,14 @@ typedef enum
     T_RPAREN,
     T_LBRACE,
     T_RBRACE,
+    // keywords
     T_FUNCTION,
     T_LET,
+    T_TRUE,
+    T_FALSE,
+    T_IF,
+    T_ELSE,
+    T_RETURN,
 
     T_MAX_TOKENS
 } token_t;
