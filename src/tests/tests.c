@@ -139,9 +139,48 @@ static void test_if_else_return()
     assert(strcmp(t.literal, "return") == 0);
 
     t = lexer_next_token(&l);
-    printf("---%s\r\n", t.literal);
     assert(t.token == T_TRUE);
     assert(strcmp(t.literal, "true") == 0);
+}
+
+static void test_eq_not_eq()
+{
+    char *input = "5 == 10   \n\
+                   1 != 1;   \n\
+                  ";
+    lexer l = parser_new(input);
+
+    token t = lexer_next_token(&l);
+    assert(t.token == T_INT);
+    assert(strcmp(t.literal, "5") == 0);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_EQ);
+    assert(strcmp(t.literal, "==") == 0);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_INT);
+    assert(strcmp(t.literal, "10") == 0);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_INT);
+    assert(strcmp(t.literal, "1") == 0);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_NOT_EQ);
+    assert(strcmp(t.literal, "!=") == 0);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_INT);
+    assert(strcmp(t.literal, "1") == 0);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_SEMICOLON);
+    assert(strcmp(t.literal, ";") == 0);
+
+    t = lexer_next_token(&l);
+    assert(t.token == T_EOF);
+    assert(strcmp(t.literal, "") == 0);
 }
 
 void handler(int sig)
@@ -163,6 +202,7 @@ int main(int argc, char *argv[])
     test_lexer_next_token();
     test_lexer_more_operators();
     test_if_else_return();
+    test_eq_not_eq();
 
     printf("all tests passed\r\n");
 }

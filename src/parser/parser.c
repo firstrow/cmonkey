@@ -33,6 +33,8 @@ const char *const TOKENS[] = {
     [T_IF] = "IF",
     [T_ELSE] = "ELSE",
     [T_RETURN] = "RETURN",
+    [T_EQ] = "EQUAL",
+    [T_NOT_EQ] = "NOT_EQUAL",
 };
 
 static const char *const KEYWORDS[] = {
@@ -96,6 +98,18 @@ static bool is_whitespace(unsigned char c)
     return isspace(c);
 }
 
+static unsigned char lexer_peek_next(lexer *l)
+{
+    return l->input[l->readPos];
+}
+
+static bool next_char_is(lexer *l, const char *c)
+{
+    char buf[2] = "";
+    sprintf(buf, "%c", l->input[l->readPos]);
+    return strcmp(c, buf) == 0;
+}
+
 static bool lexer_peek_next_char_is(lexer *l, cb_checker cb)
 {
     return cb(l->input[l->readPos]);
@@ -107,7 +121,7 @@ token lexer_next_token(lexer *l)
 {
     token t = {
         .token = T_EOF,
-        .literal = NULL,
+        .literal = "",
     };
     lexer_read_char(l);
 
@@ -123,6 +137,23 @@ token lexer_next_token(lexer *l)
     // operators / characters
     for (int i = 0; i < T_MAX_TOKENS; i++) {
         if (strcmp(TOKENS[i], ch_buf) == 0) {
+            // ==
+            if (strcmp(ch_buf, "=") == 0 && next_char_is(l, "=")) {
+                lexer_read_char(l);
+                return (token){
+                    .token = T_EQ,
+                    .literal = "==",
+                };
+            }
+            // !=
+            if (strcmp(ch_buf, "!") == 0 && next_char_is(l, "=")) {
+                lexer_read_char(l);
+                return (token){
+                    .token = T_NOT_EQ,
+                    .literal = "!=",
+                };
+            }
+
             return (token){
                 .token = i,
                 .literal = strdup(ch_buf),
@@ -133,7 +164,7 @@ token lexer_next_token(lexer *l)
     // read all till whitespace or EOF;
     char literal_buf[64] = "";
 
-    // stings
+    // strings
     if (is_letter(l->ch)) {
         while (!l->eof) {
             sprintf(ch_buf, "%c", l->ch);

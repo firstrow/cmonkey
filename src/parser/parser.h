@@ -19,6 +19,8 @@ typedef enum
     T_SLASH,
     T_LT,
     T_GT,
+    T_EQ,
+    T_NOT_EQ,
     // delimiters
     T_COMMA,
     T_SEMICOLON,
