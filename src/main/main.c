@@ -1,10 +1,21 @@
 #include "parser/parser.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
+#include <readline/history.h>
+#include <readline/readline.h>
+
 int main(int argc, char *argv[])
 {
-    parser_new("=+{}}[]");
-    printf("%s", "done");
+    char *input;
+    while (true) {
+        input = readline("> ");
+        if (input == NULL)
+            continue;
+
+        add_history(input);
+        printf("got: %s\r\n", input);
+    }
 }

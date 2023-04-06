@@ -6,7 +6,8 @@ build:
 	@$(MAKE) -C ./build
 
 run: build
-	@./build/ctests
+	# @./build/ctests
+	@./build/cmonkey
 
 test: build
 	@./build/ctests

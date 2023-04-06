@@ -15,6 +15,7 @@ add_executable(${SHORT_NAME} ${SOURCE_FILES} ${PROJECT_SOURCE_DIR}/src/main/main
 add_executable(ctests ${SOURCE_FILES} ${PROJECT_SOURCE_DIR}/src/tests/tests.c)
 
 target_link_libraries(${SHORT_NAME} m)
+target_link_libraries(${SHORT_NAME} readline)
 
 find_package (Threads REQUIRED)
 target_link_libraries(${SHORT_NAME} ${CMAKE_THREAD_LIBS_INIT})
