@@ -56,7 +56,7 @@ typedef struct {
 
 extern const char * const TOKENS[];
 
-lexer parser_new(char *str);
+lexer lexer_new(char *str);
 void lexer_read_char(lexer *l);
 token lexer_next_token(lexer *l);
 

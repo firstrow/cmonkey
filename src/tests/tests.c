@@ -1,4 +1,4 @@
-#include "parser/parser.h"
+#include "lexer/lexer.h"
 #include <assert.h>
 #include <execinfo.h>
 #include <signal.h>
@@ -19,7 +19,7 @@ static void test_lexer_read_char()
     // , = 44
     // ; = 59
     char *input = "=+(){},;";
-    lexer l = parser_new(input);
+    lexer l = lexer_new(input);
 
     lexer_read_char(&l), assert(l.ch == 61);
     lexer_read_char(&l), assert(l.ch == 43);
@@ -42,7 +42,7 @@ static void test_lexer_next_token()
         };                           \n\
         let result = add(five, ten); \n\
         ";
-    lexer l = parser_new(input);
+    lexer l = lexer_new(input);
 
     token t = lexer_next_token(&l);
     assert(t.token == T_LET);
@@ -85,7 +85,7 @@ static void test_lexer_next_token()
 static void test_lexer_more_operators()
 {
     char *input = "=+-!*/<>";
-    lexer l = parser_new(input);
+    lexer l = lexer_new(input);
 
     token t = lexer_next_token(&l);
     assert(t.token == T_ASSIGN);
@@ -105,7 +105,7 @@ static void test_if_else_return()
             return false;          \n\
         }                          \n\
         ";
-    lexer l = parser_new(input);
+    lexer l = lexer_new(input);
 
     token t = lexer_next_token(&l);
     assert(t.token == T_IF);
@@ -148,7 +148,7 @@ static void test_eq_not_eq()
     char *input = "5 == 10   \n\
                    1 != 1;   \n\
                   ";
-    lexer l = parser_new(input);
+    lexer l = lexer_new(input);
 
     token t = lexer_next_token(&l);
     assert(t.token == T_INT);

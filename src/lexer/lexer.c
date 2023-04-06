@@ -1,4 +1,4 @@
-#include "parser/parser.h"
+#include "lexer/lexer.h"
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -47,7 +47,7 @@ static const char *const KEYWORDS[] = {
     [T_RETURN] = "return",
 };
 
-lexer parser_new(char *str)
+lexer lexer_new(char *str)
 {
     lexer l = {
         .input = strdup(str),
