@@ -7,6 +7,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "ast/ast.h"
+
 static void test_lexer_read_char()
 {
 
@@ -48,7 +50,7 @@ static void test_lexer_next_token()
     assert(t.token == T_LET);
 
     t = lexer_next_token(&l);
-    assert(t.token == T_INDENT);
+    assert(t.token == T_IDENT);
     assert(strcmp(t.literal, "five") == 0);
 
     t = lexer_next_token(&l);
@@ -65,7 +67,7 @@ static void test_lexer_next_token()
     assert(t.token == T_LET);
 
     t = lexer_next_token(&l);
-    assert(t.token == T_INDENT);
+    assert(t.token == T_IDENT);
     assert(strcmp(t.literal, "ten") == 0);
 
     t = lexer_next_token(&l);
@@ -183,26 +185,35 @@ static void test_eq_not_eq()
     assert(strcmp(t.literal, "") == 0);
 }
 
-void handler(int sig)
+static void test_ast_let_statement()
 {
-    void *array[10];
-    size_t size;
-    size = backtrace(array, 10);
-    fprintf(stderr, "Error: signal %d:\n", sig);
-    backtrace_symbols_fd(array, size, STDERR_FILENO);
-    exit(1);
+    char *input = "       \n\
+        let x = 5;        \n\
+        let y = 10;       \n\
+        let foobar = 123; \n\
+        ";
+
+    int i;
+    lexer l = lexer_new(input);
+    statement *sts = ast_parse(&l, &i);
+
+    assert(i == 3);
+    assert(sts[0].token.token == T_LET);
+    assert(strcmp(sts[0].name, "x") == 0);
+    assert(sts[1].token.token == T_LET);
+    assert(strcmp(sts[1].name, "y") == 0);
+    assert(sts[2].token.token == T_LET);
+    assert(strcmp(sts[2].name, "foobar") == 0);
 }
 
 int main(int argc, char *argv[])
 {
-    // TODO: finish;
-    // signal(SIGSEGV, handler);
-
     test_lexer_read_char();
     test_lexer_next_token();
     test_lexer_more_operators();
     test_if_else_return();
     test_eq_not_eq();
+    test_ast_let_statement();
 
     printf("all tests passed\r\n");
 }

@@ -1,4 +1,5 @@
 #include "lexer/lexer.h"
+#include <assert.h>
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -10,7 +11,7 @@ typedef bool (*cb_checker)(unsigned char);
 const char *const TOKENS[] = {
     [T_ILLEGAL] = "ILLEGAL",
     [T_EOF] = "EOF",
-    [T_INDENT] = "INDENT",
+    [T_IDENT] = "IDENT",
     [T_INT] = "INT",
     [T_ASSIGN] = "=",
     [T_PLUS] = "+",
@@ -61,6 +62,8 @@ lexer lexer_new(char *str)
 
 void lexer_read_char(lexer *l)
 {
+    assert(l != NULL);
+
     if (l->readPos >= l->len) {
         l->ch = 0;
         l->eof = true;
@@ -189,7 +192,7 @@ token lexer_next_token(lexer *l)
         }
 
         return (token){
-            .token = T_INDENT,
+            .token = T_IDENT,
             .literal = strdup(literal_buf),
         };
     }

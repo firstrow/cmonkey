@@ -8,7 +8,7 @@ typedef enum
     T_ILLEGAL = 0,
     T_EOF,
     // identifiers + literals
-    T_INDENT,
+    T_IDENT,
     T_INT,
     // operators
     T_ASSIGN,
