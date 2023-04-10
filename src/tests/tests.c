@@ -204,6 +204,28 @@ static void test_ast_let_statement()
     assert(strcmp(sts[1].name, "y") == 0);
     assert(sts[2].token.token == T_LET);
     assert(strcmp(sts[2].name, "foobar") == 0);
+
+    free(sts);
+}
+
+static void test_ast_return_statement()
+{
+    char *input = "      \n\
+        return 5;        \n\
+        return 10;       \n\
+        return 123;      \n\
+        ";
+
+    int i;
+    lexer l = lexer_new(input);
+    statement *sts = ast_parse(&l, &i);
+
+    assert(i == 3);
+    assert(sts[0].token.token == T_RETURN);
+    assert(sts[1].token.token == T_RETURN);
+    assert(sts[2].token.token == T_RETURN);
+
+    free(sts);
 }
 
 int main(int argc, char *argv[])
@@ -214,6 +236,7 @@ int main(int argc, char *argv[])
     test_if_else_return();
     test_eq_not_eq();
     test_ast_let_statement();
+    test_ast_return_statement();
 
     printf("all tests passed\r\n");
 }
