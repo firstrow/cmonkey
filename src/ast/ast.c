@@ -68,9 +68,15 @@ static int parse_expression_statement(statement *s)
     switch (curr_token.token) {
     case T_IDENT:
         s->token = curr_token;
-        exp_identifier *e = malloc(sizeof(exp_identifier));
-        e->token = curr_token;
-        e->value = strdup(curr_token.literal);
+        exp_identifier *e1 = malloc(sizeof(exp_identifier));
+        e1->token = curr_token;
+        e1->value = strdup(curr_token.literal);
+        s->exp = e1;
+        break;
+    case T_INT:
+        s->token = curr_token;
+        exp_integer *e = malloc(sizeof(exp_integer));
+        e->value = strtol(curr_token.literal, NULL, 10);
         s->exp = e;
         break;
     default:
@@ -90,6 +96,7 @@ void print_sts(statement *sts, int len)
     for (int i = 0; i < len; i++) {
         printf("token: %d\r\n", sts[i].token.token);
         printf("literal: %s\r\n", sts[i].token.literal);
+        printf("_____________________\r\n");
     }
     printf(">>>>>>>>>>>>>>>>>>>>>\r\n");
 }

@@ -197,13 +197,15 @@ static void test_ast_let_statement()
     lexer l = lexer_new(input);
     statement *sts = ast_parse(&l, &i);
 
-    assert(i == 3);
+    // print_sts(sts, i);
+
+    assert(i == 6);
     assert(sts[0].token.token == T_LET);
     assert(strcmp(sts[0].literal, "x") == 0);
-    assert(sts[1].token.token == T_LET);
-    assert(strcmp(sts[1].literal, "y") == 0);
     assert(sts[2].token.token == T_LET);
-    assert(strcmp(sts[2].literal, "foobar") == 0);
+    assert(strcmp(sts[2].literal, "y") == 0);
+    assert(sts[4].token.token == T_LET);
+    assert(strcmp(sts[4].literal, "foobar") == 0);
 
     free(sts);
 }
@@ -239,6 +241,25 @@ static void test_identifier_expression()
     assert(i == 1);
     assert(sts[0].token.token == T_IDENT);
 
+    exp_identifier *exp = (exp_identifier *)sts[0].exp;
+    assert(strcmp(exp->value, "foobar") == 0);
+
+    free(sts);
+}
+
+static void test_integer_expression()
+{
+    char *input = "5;";
+
+    int i;
+    lexer l = lexer_new(input);
+    statement *sts = ast_parse(&l, &i);
+
+    assert(i == 1);
+    assert(sts[0].token.token == T_INT);
+    exp_integer *exp = sts[0].exp;
+    assert(exp->value == 5);
+
     free(sts);
 }
 
@@ -252,6 +273,7 @@ int main(int argc, char *argv[])
     test_ast_let_statement();
     test_ast_return_statement();
     test_identifier_expression();
+    test_integer_expression();
 
     printf("all tests passed\r\n");
 }

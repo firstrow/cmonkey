@@ -15,6 +15,11 @@ typedef struct {
     char *value;
 } exp_identifier;
 
+typedef struct {
+    token token;
+    int value;
+} exp_integer;
+
 statement *ast_parse(lexer *l, int *len);
 void print_sts(statement *sts, int len);
 
