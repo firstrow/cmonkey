@@ -199,11 +199,11 @@ static void test_ast_let_statement()
 
     assert(i == 3);
     assert(sts[0].token.token == T_LET);
-    assert(strcmp(sts[0].name, "x") == 0);
+    assert(strcmp(sts[0].literal, "x") == 0);
     assert(sts[1].token.token == T_LET);
-    assert(strcmp(sts[1].name, "y") == 0);
+    assert(strcmp(sts[1].literal, "y") == 0);
     assert(sts[2].token.token == T_LET);
-    assert(strcmp(sts[2].name, "foobar") == 0);
+    assert(strcmp(sts[2].literal, "foobar") == 0);
 
     free(sts);
 }
@@ -228,6 +228,20 @@ static void test_ast_return_statement()
     free(sts);
 }
 
+static void test_identifier_expression()
+{
+    char *input = "foobar;";
+
+    int i;
+    lexer l = lexer_new(input);
+    statement *sts = ast_parse(&l, &i);
+
+    assert(i == 1);
+    assert(sts[0].token.token == T_IDENT);
+
+    free(sts);
+}
+
 int main(int argc, char *argv[])
 {
     test_lexer_read_char();
@@ -237,6 +251,7 @@ int main(int argc, char *argv[])
     test_eq_not_eq();
     test_ast_let_statement();
     test_ast_return_statement();
+    test_identifier_expression();
 
     printf("all tests passed\r\n");
 }

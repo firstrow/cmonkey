@@ -6,8 +6,8 @@
 #include <string.h>
 
 const int arr_cap = 128;
-
 static int arr_len;
+
 static lexer *l;
 static token curr_token;
 static token next_token;
@@ -42,7 +42,7 @@ static int parse_let_statement(statement *s)
     if (!expect_next_token(T_IDENT))
         return error("expected token to be T_INDENT");
 
-    s->name = strdup(next_token.literal);
+    s->literal = strdup(next_token.literal);
 
     tokens_advance();
 
@@ -63,33 +63,71 @@ static int parse_return_statement(statement *s)
     return -1;
 }
 
+static int parse_expression_statement(statement *s)
+{
+    switch (curr_token.token) {
+    case T_IDENT:
+        s->token = curr_token;
+        exp_identifier *e = malloc(sizeof(exp_identifier));
+        e->token = curr_token;
+        e->value = strdup(curr_token.literal);
+        s->exp = e;
+        break;
+    default:
+        break;
+    }
+
+    if (next_token.token == T_SEMICOLON) {
+        tokens_advance();
+    }
+
+    return -1;
+}
+
+void print_sts(statement *sts, int len)
+{
+    printf(">>>>>>>>>>>>>>>>>>>>>\r\n");
+    for (int i = 0; i < len; i++) {
+        printf("token: %d\r\n", sts[i].token.token);
+        printf("literal: %s\r\n", sts[i].token.literal);
+    }
+    printf(">>>>>>>>>>>>>>>>>>>>>\r\n");
+}
+
 statement *ast_parse(lexer *lex, int *len)
 {
-    curr_token = (token){0};
-    next_token = (token){0};
     arr_len = 0;
     l = lex;
-
     statement *sts = malloc(sizeof(statement) * arr_cap);
+    tokens_advance();
     tokens_advance();
 
     while (curr_token.token != T_EOF) {
         statement s = {0};
 
-        if (curr_token.token == T_LET) {
+        switch (curr_token.token) {
+        case T_LET:
             if (!parse_let_statement(&s)) {
                 printf("ERROR: failed to parse let statement\r\n");
                 abort();
             }
-            add_statement(sts, s);
-        }
-        if (curr_token.token == T_RETURN) {
+            break;
+        case T_RETURN:
             if (!parse_return_statement(&s)) {
                 printf("ERROR: failed to parse return statement\r\n");
                 abort();
             }
-            add_statement(sts, s);
+            break;
+        default:
+            if (!parse_expression_statement(&s)) {
+                printf("ERROR: failed to parse expression statement\r\n");
+                abort();
+            }
+            break;
         }
+
+        if (s.token.token > 0)
+            add_statement(sts, s);
 
         tokens_advance();
     }
