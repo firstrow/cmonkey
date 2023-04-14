@@ -294,6 +294,41 @@ static void test_prefix_expression()
     free(sts);
 }
 
+static void test_inflix_expression()
+{
+    char *input = " \n\
+        5 + 5; \n\
+        6 - 5; \n\
+        ";
+
+    int i;
+    lexer l = lexer_new(input);
+    statement *sts = ast_parse(&l, &i);
+
+    // print_sts(sts, i);
+
+    assert(i == 2);
+    assert(sts[0].token.token == T_INT);
+
+    exp_inflix *exp = sts[0].exp;
+    exp_integer *left = exp->left;
+    exp_integer *right = exp->right;
+
+    assert(strcmp(exp->op, "+") == 0);
+    assert(left->value == 5);
+    assert(right->value == 5);
+
+    exp = sts[1].exp;
+    left = exp->left;
+    right = exp->right;
+
+    assert(strcmp(exp->op, "-") == 0);
+    assert(left->value == 6);
+    assert(right->value == 5);
+
+    free(sts);
+}
+
 int main(int argc, char *argv[])
 {
     test_lexer_read_char();
@@ -306,6 +341,7 @@ int main(int argc, char *argv[])
     test_identifier_expression();
     test_integer_expression();
     test_prefix_expression();
+    test_inflix_expression();
 
     printf("all tests passed\r\n");
 }

@@ -33,6 +33,14 @@ typedef struct
     exp *right;
 } exp_prefix;
 
+typedef struct
+{
+    token token;
+    exp *left;
+    char *op;
+    exp *right;
+} exp_inflix;
+
 statement *ast_parse(lexer *l, int *len);
 void print_sts(statement *sts, int len);
 

@@ -12,6 +12,8 @@ static lexer *l;
 static token curr_token;
 static token next_token;
 
+static exp *parse_expression();
+
 static void add_statement(statement *arr, statement s)
 {
     arr[arr_len] = s;
@@ -63,28 +65,63 @@ static int parse_return_statement(statement *s)
     return -1;
 }
 
-static exp *parse_expression(token token)
+static bool is_next_token_iflix()
 {
-    if (token.token == T_IDENT) {
+    switch (next_token.token) {
+    case T_PLUS:
+    case T_MINUS:
+    case T_SLASH:
+    case T_ASTERISK:
+    case T_EQ:
+    case T_NOT_EQ:
+    case T_LT:
+    case T_GT:
+        return true;
+        break;
+    default:
+        return false;
+        break;
+    }
+
+    return false;
+}
+
+static exp *parse_inflix_expression(exp *left)
+{
+    exp_inflix *e = malloc(sizeof(exp_inflix));
+    e->token = curr_token;
+    e->op = strdup(curr_token.literal);
+    e->left = left;
+
+    tokens_advance();
+
+    e->right = parse_expression();
+
+    return e;
+}
+
+static exp *parse_expression()
+{
+    if (curr_token.token == T_IDENT) {
         exp_identifier *e = malloc(sizeof(exp_identifier));
         e->token = curr_token;
         e->value = strdup(curr_token.literal);
         return e;
     }
 
-    if (token.token == T_INT) {
+    if (curr_token.token == T_INT) {
         exp_integer *e = malloc(sizeof(exp_integer));
         e->token = curr_token;
         e->value = strtol(curr_token.literal, NULL, 10);
         return e;
     }
 
-    if (token.token == T_BANG || token.token == T_MINUS) {
+    if (curr_token.token == T_BANG || curr_token.token == T_MINUS) {
         exp_prefix *e = malloc(sizeof(exp_prefix));
         e->token = curr_token;
         e->op = strdup(curr_token.literal);
         tokens_advance();
-        e->right = parse_expression(curr_token);
+        e->right = parse_expression();
         return e;
     }
 
@@ -94,10 +131,19 @@ static exp *parse_expression(token token)
 static int parse_expression_statement(statement *s)
 {
     token t = curr_token;
-    exp *e = parse_expression(t);
-    if (e != NULL) {
+    exp *left = parse_expression();
+    if (left != NULL) {
         s->token = t;
-        s->exp = e;
+
+        while (curr_token.token != T_SEMICOLON) {
+            if (is_next_token_iflix()) {
+                tokens_advance();
+                left = parse_inflix_expression(left);
+            } else {
+                s->exp = left;
+                break;
+            }
+        }
     }
 
     if (next_token.token == T_SEMICOLON)
