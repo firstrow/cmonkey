@@ -216,7 +216,7 @@ static exp *parse_expression(precedence p)
     return leftExp;
 }
 
-static int parse_expression_statement(statement *s, precedence p)
+static int parse_expression_statement(statement *s)
 {
     s->token = curr_token;
     s->exp = parse_expression(P_LOWEST);
@@ -263,7 +263,7 @@ statement *ast_parse(lexer *lex, int *len)
             }
             break;
         default:
-            if (!parse_expression_statement(&s, P_PREFIX)) {
+            if (!parse_expression_statement(&s)) {
                 printf("ERROR: failed to parse expression statement\r\n");
                 abort();
             }
