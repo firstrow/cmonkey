@@ -183,6 +183,8 @@ static exp *parse_expression(precedence p)
         abort();
     }
 
+    return prefix();
+
     // token t = curr_token;
     // exp *left = parse_expression(P_LOWEST);
     // if (left == NULL)

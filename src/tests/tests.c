@@ -340,9 +340,9 @@ int main(int argc, char *argv[])
     test_eq_not_eq();
     test_ast_let_statement();
     test_ast_return_statement();
-    // test_identifier_expression();
-    // test_integer_expression();
-    // test_prefix_expression();
+    test_identifier_expression();
+    test_integer_expression();
+    test_prefix_expression();
     // test_inflix_expression();
 
     printf("all tests passed\r\n");
