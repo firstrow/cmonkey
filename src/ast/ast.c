@@ -15,6 +15,7 @@ static token next_token;
 static exp *parse_expression(precedence);
 
 typedef exp *(*parse_fn)();
+typedef exp *(*parse_inflix_fn)(exp *);
 
 static void add_statement(statement *arr, statement s)
 {
@@ -120,16 +121,6 @@ static precedence peek_precedence()
     return precedence_by_token(next_token);
 }
 
-static exp *parse_prefix_expression()
-{
-    exp_prefix *e = malloc(sizeof(exp_prefix));
-    e->token = curr_token;
-    e->op = strdup(curr_token.literal);
-    tokens_advance();
-    e->right = parse_expression(P_PREFIX);
-    return e;
-}
-
 static exp *parse_integer_expression()
 {
     exp_integer *e = malloc(sizeof(exp_integer));
@@ -145,10 +136,20 @@ static exp *parse_inflix_expression(exp *left)
     e->op = strdup(curr_token.literal);
     e->left = left;
 
+    precedence p = curr_precedence();
     tokens_advance();
+    e->right = parse_expression(p);
 
-    e->right = parse_expression(P_LOWEST);
+    return e;
+}
 
+static exp *parse_prefix_expression()
+{
+    exp_prefix *e = malloc(sizeof(exp_prefix));
+    e->token = curr_token;
+    e->op = strdup(curr_token.literal);
+    tokens_advance();
+    e->right = parse_expression(P_PREFIX);
     return e;
 }
 
@@ -175,33 +176,44 @@ static parse_fn get_parse_fn()
     }
 }
 
+static parse_inflix_fn get_parse_inflix_fn(token t)
+{
+    switch (t.token) {
+    case T_PLUS:
+    case T_MINUS:
+    case T_SLASH:
+    case T_ASTERISK:
+    case T_EQ:
+    case T_NOT_EQ:
+    case T_LT:
+    case T_GT:
+        return &parse_inflix_expression;
+    default:
+        return NULL;
+    }
+}
+
 static exp *parse_expression(precedence p)
 {
-    parse_fn prefix = get_parse_fn();
-    if (prefix == NULL) {
-        printf("prefix func not for %s found\n", curr_token.literal);
+    parse_fn prefix_fn = get_parse_fn();
+    if (prefix_fn == NULL) {
+        printf("prefix_fn func not for %s found\n", curr_token.literal);
         abort();
     }
 
-    return prefix();
+    exp *leftExp = prefix_fn();
 
-    // token t = curr_token;
-    // exp *left = parse_expression(P_LOWEST);
-    // if (left == NULL)
-    //     return -1;
+    while (next_token.token != T_SEMICOLON && p < peek_precedence()) {
+        parse_inflix_fn inflix_fn = get_parse_inflix_fn(next_token);
+        if (inflix_fn == NULL)
+            return leftExp;
 
-    // s->token = t;
+        tokens_advance();
 
-    // while (curr_token.token != T_SEMICOLON && p < peek_precedence()) {
-    //     if (!is_next_token_iflix()) {
-    //         s->exp = left;
-    //         return -1;
-    //     }
+        leftExp = inflix_fn(leftExp);
+    }
 
-    //     tokens_advance();
-    //     left = parse_inflix_expression(left);
-    // }
-    // s->exp = left;
+    return leftExp;
 }
 
 static int parse_expression_statement(statement *s, precedence p)

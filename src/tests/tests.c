@@ -301,6 +301,7 @@ static void test_inflix_expression()
     char *input = " \n\
         5 + 5; \n\
         6 - 5; \n\
+        4 == 3; \n\
         ";
 
     int i;
@@ -309,7 +310,7 @@ static void test_inflix_expression()
 
     print_sts(sts, i);
 
-    assert(i == 2);
+    assert(i == 3);
     assert(sts[0].token.token == T_INT);
 
     exp_inflix *exp = sts[0].exp;
@@ -323,10 +324,16 @@ static void test_inflix_expression()
     exp = sts[1].exp;
     left = exp->left;
     right = exp->right;
-
     assert(strcmp(exp->op, "-") == 0);
     assert(left->value == 6);
     assert(right->value == 5);
+
+    exp = sts[2].exp;
+    left = exp->left;
+    right = exp->right;
+    assert(strcmp(exp->op, "==") == 0);
+    assert(left->value == 4);
+    assert(right->value == 3);
 
     free(sts);
 }
@@ -343,7 +350,7 @@ int main(int argc, char *argv[])
     test_identifier_expression();
     test_integer_expression();
     test_prefix_expression();
-    // test_inflix_expression();
+    test_inflix_expression();
 
     printf("all tests passed\r\n");
 }
