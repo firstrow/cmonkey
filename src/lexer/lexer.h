@@ -40,6 +40,16 @@ typedef enum
     T_MAX_TOKENS
 } token_t;
 
+typedef enum {
+    P_LOWEST = 0,
+    P_EQUALS,
+    P_LESSGREATER,
+    P_SUM,
+    P_PRODUCT,
+    P_PREFIX,
+    P_CALL
+} precedence;
+
 typedef struct {
     token_t token;
     char *literal;
