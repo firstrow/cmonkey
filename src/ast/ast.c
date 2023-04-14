@@ -63,29 +63,45 @@ static int parse_return_statement(statement *s)
     return -1;
 }
 
-static int parse_expression_statement(statement *s)
+static exp *parse_expression(token token)
 {
-    switch (curr_token.token) {
-    case T_IDENT:
-        s->token = curr_token;
-        exp_identifier *e1 = malloc(sizeof(exp_identifier));
-        e1->token = curr_token;
-        e1->value = strdup(curr_token.literal);
-        s->exp = e1;
-        break;
-    case T_INT:
-        s->token = curr_token;
-        exp_integer *e = malloc(sizeof(exp_integer));
-        e->value = strtol(curr_token.literal, NULL, 10);
-        s->exp = e;
-        break;
-    default:
-        break;
+    if (token.token == T_IDENT) {
+        exp_identifier *e = malloc(sizeof(exp_identifier));
+        e->token = curr_token;
+        e->value = strdup(curr_token.literal);
+        return e;
     }
 
-    if (next_token.token == T_SEMICOLON) {
-        tokens_advance();
+    if (token.token == T_INT) {
+        exp_integer *e = malloc(sizeof(exp_integer));
+        e->token = curr_token;
+        e->value = strtol(curr_token.literal, NULL, 10);
+        return e;
     }
+
+    if (token.token == T_BANG || token.token == T_MINUS) {
+        exp_prefix *e = malloc(sizeof(exp_prefix));
+        e->token = curr_token;
+        e->op = strdup(curr_token.literal);
+        tokens_advance();
+        e->right = parse_expression(curr_token);
+        return e;
+    }
+
+    return NULL;
+}
+
+static int parse_expression_statement(statement *s)
+{
+    token t = curr_token;
+    exp *e = parse_expression(t);
+    if (e != NULL) {
+        s->token = t;
+        s->exp = e;
+    }
+
+    if (next_token.token == T_SEMICOLON)
+        tokens_advance();
 
     return -1;
 }

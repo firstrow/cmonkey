@@ -3,22 +3,35 @@
 
 #include "lexer/lexer.h"
 
+typedef void exp;
+
 typedef struct
 {
     token token;
     char *literal;
-    void *exp;
+    exp *exp;
 } statement;
 
-typedef struct {
+// expressions
+
+typedef struct
+{
     token token;
     char *value;
 } exp_identifier;
 
-typedef struct {
+typedef struct
+{
     token token;
     int value;
 } exp_integer;
+
+typedef struct
+{
+    token token;
+    char *op;
+    exp *right;
+} exp_prefix;
 
 statement *ast_parse(lexer *l, int *len);
 void print_sts(statement *sts, int len);

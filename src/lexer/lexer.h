@@ -8,12 +8,12 @@ typedef enum
     T_ILLEGAL = 0,
     T_EOF,
     // identifiers + literals
-    T_IDENT,
+    T_IDENT, 
     T_INT,
     // operators
     T_ASSIGN,
     T_PLUS,
-    T_MINUS,
+    T_MINUS, 
     T_BANG,
     T_ASTERISK,
     T_SLASH,
