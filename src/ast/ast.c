@@ -90,16 +90,6 @@ static precedence precedence_by_token(token t)
     }
 }
 
-static precedence curr_precedence()
-{
-    return precedence_by_token(curr_token);
-}
-
-static precedence peek_precedence()
-{
-    return precedence_by_token(next_token);
-}
-
 static exp *parse_integer_expression()
 {
     exp_integer *e = malloc(sizeof(exp_integer));
@@ -115,7 +105,7 @@ static exp *parse_inflix_expression(exp *left)
     e->op = strdup(curr_token.literal);
     e->left = left;
 
-    precedence p = curr_precedence();
+    precedence p = precedence_by_token(curr_token);
     tokens_advance();
     e->right = parse_expression(p);
 
@@ -182,7 +172,7 @@ static exp *parse_expression(precedence p)
 
     exp *leftExp = prefix_fn();
 
-    while (next_token.token != T_SEMICOLON && p < peek_precedence()) {
+    while (next_token.token != T_SEMICOLON && p < precedence_by_token(next_token)) {
         parse_inflix_fn inflix_fn = get_parse_inflix_fn(next_token);
         if (inflix_fn == NULL)
             return leftExp;
