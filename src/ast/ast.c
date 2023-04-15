@@ -70,27 +70,6 @@ static int parse_return_statement(statement *s)
     return -1;
 }
 
-static bool is_next_token_iflix()
-{
-    switch (next_token.token) {
-    case T_PLUS:
-    case T_MINUS:
-    case T_SLASH:
-    case T_ASTERISK:
-    case T_EQ:
-    case T_NOT_EQ:
-    case T_LT:
-    case T_GT:
-        return true;
-        break;
-    default:
-        return false;
-        break;
-    }
-
-    return false;
-}
-
 static precedence precedence_by_token(token t)
 {
     switch (t.token) {
