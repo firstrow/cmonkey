@@ -308,7 +308,7 @@ static void test_inflix_expression()
     lexer l = lexer_new(input);
     statement *sts = ast_parse(&l, &i);
 
-    // print_sts(sts, i);
+    print_sts(sts, i);
 
     assert(i == 3);
     assert(sts[0].token.token == T_INT);

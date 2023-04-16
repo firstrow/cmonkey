@@ -7,7 +7,7 @@ typedef void exp;
 
 typedef struct
 {
-    void (*print_fn)(void *);
+    void (*print_fn)(exp *);
     exp *exp; // hold expression: exp_integer, etc...
 } header;
 

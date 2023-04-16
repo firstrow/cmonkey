@@ -90,8 +90,37 @@ static precedence precedence_by_token(token t)
     }
 }
 
-static void print_exp_integer()
+static void print_exp_integer(exp *exp)
 {
+    exp_integer *e = exp;
+    printf(" %d ", e->value);
+}
+
+static void print_inflix_exp(exp *exp)
+{
+    exp_inflix *e = exp;
+    printf("(");
+    e->left.print_fn(e->left.exp);
+    printf(" %s ", e->op);
+    e->right.print_fn(e->right.exp);
+    printf(")");
+}
+
+static void print_prefix_exp(exp *exp)
+{
+    exp_prefix *e = exp;
+    printf("(");
+    printf(" %s ", e->op);
+    e->right.print_fn(e->right.exp);
+    printf(")");
+}
+
+static void print_ident_exp(exp *exp)
+{
+    exp_identifier *e = exp;
+    printf("(");
+    printf(" %s ", e->value);
+    printf(")");
 }
 
 static header parse_integer_expression()
@@ -100,6 +129,7 @@ static header parse_integer_expression()
     e->token = curr_token;
     e->value = strtol(curr_token.literal, NULL, 10);
     return (header){
+        .print_fn = &print_exp_integer,
         .exp = e,
     };
 }
@@ -115,6 +145,7 @@ static header parse_inflix_expression(header h)
     tokens_advance();
     e->right = parse_expression(p);
     return (header){
+        .print_fn = &print_inflix_exp,
         .exp = e,
     };
 }
@@ -127,6 +158,7 @@ static header parse_prefix_expression()
     tokens_advance();
     e->right = parse_expression(P_PREFIX);
     return (header){
+        .print_fn = &print_prefix_exp,
         .exp = e,
     };
 }
@@ -137,6 +169,7 @@ static header parse_ident_expression()
     e->token = curr_token;
     e->value = strdup(curr_token.literal);
     return (header){
+        .print_fn = &print_ident_exp,
         .exp = e,
     };
 }
@@ -211,9 +244,9 @@ void print_sts(statement *sts, int len)
 {
     printf(">>>>>>>>>>>>>>>>>>>>>\r\n");
     for (int i = 0; i < len; i++) {
-        printf("token: %d\r\n", sts[i].token.token);
-        printf("literal: %s\r\n", sts[i].token.literal);
-        printf("_____________________\r\n");
+        // printf("token: %d\r\n", sts[i].token.token);
+        sts[i].exp.print_fn(sts[i].exp.exp);
+        printf("\r\n");
     }
     printf(">>>>>>>>>>>>>>>>>>>>>\r\n");
 }
