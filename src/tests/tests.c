@@ -243,7 +243,7 @@ static void test_identifier_expression()
     assert(i == 1);
     assert(sts[0].token.token == T_IDENT);
 
-    exp_identifier *exp = (exp_identifier *)sts[0].exp;
+    exp_identifier *exp = (exp_identifier *)sts[0].exp.exp;
     assert(strcmp(exp->value, "foobar") == 0);
 
     free(sts);
@@ -259,7 +259,7 @@ static void test_integer_expression()
 
     assert(i == 1);
     assert(sts[0].token.token == T_INT);
-    exp_integer *exp = sts[0].exp;
+    exp_integer *exp = sts[0].exp.exp;
     assert(exp->value == 5);
 
     free(sts);
@@ -280,15 +280,15 @@ static void test_prefix_expression()
 
     assert(i == 2);
     assert(sts[0].token.token == T_BANG);
-    exp_prefix *exp = sts[0].exp;
-    exp_integer *right_exp = exp->right;
+    exp_prefix *exp = sts[0].exp.exp;
+    exp_integer *right_exp = exp->right.exp;
     assert(strcmp(exp->op, "!") == 0);
     assert(right_exp->token.token == T_INT);
     assert(right_exp->value == 5);
 
     assert(sts[1].token.token == T_MINUS);
-    exp = sts[1].exp;
-    right_exp = exp->right;
+    exp = sts[1].exp.exp;
+    right_exp = exp->right.exp;
     assert(strcmp(exp->op, "-") == 0);
     assert(right_exp->token.token == T_INT);
     assert(right_exp->value == 15);
@@ -308,29 +308,29 @@ static void test_inflix_expression()
     lexer l = lexer_new(input);
     statement *sts = ast_parse(&l, &i);
 
-    print_sts(sts, i);
+    // print_sts(sts, i);
 
     assert(i == 3);
     assert(sts[0].token.token == T_INT);
 
-    exp_inflix *exp = sts[0].exp;
-    exp_integer *left = exp->left;
-    exp_integer *right = exp->right;
+    exp_inflix *exp = sts[0].exp.exp;
+    exp_integer *left = exp->left.exp;
+    exp_integer *right = exp->right.exp;
 
     assert(strcmp(exp->op, "+") == 0);
     assert(left->value == 5);
     assert(right->value == 5);
 
-    exp = sts[1].exp;
-    left = exp->left;
-    right = exp->right;
+    exp = sts[1].exp.exp;
+    left = exp->left.exp;
+    right = exp->right.exp;
     assert(strcmp(exp->op, "-") == 0);
     assert(left->value == 6);
     assert(right->value == 5);
 
-    exp = sts[2].exp;
-    left = exp->left;
-    right = exp->right;
+    exp = sts[2].exp.exp;
+    left = exp->left.exp;
+    right = exp->right.exp;
     assert(strcmp(exp->op, "==") == 0);
     assert(left->value == 4);
     assert(right->value == 3);

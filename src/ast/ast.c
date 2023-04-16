@@ -12,10 +12,10 @@ static lexer *l;
 static token curr_token;
 static token next_token;
 
-static exp *parse_expression(precedence);
+static header parse_expression(precedence);
 
-typedef exp *(*parse_fn)();
-typedef exp *(*parse_inflix_fn)(exp *);
+typedef header (*parse_fn)();
+typedef header (*parse_inflix_fn)(header);
 
 static void add_statement(statement *arr, statement s)
 {
@@ -90,47 +90,58 @@ static precedence precedence_by_token(token t)
     }
 }
 
-static exp *parse_integer_expression()
+static void print_exp_integer()
+{
+}
+
+static header parse_integer_expression()
 {
     exp_integer *e = malloc(sizeof(exp_integer));
     e->token = curr_token;
     e->value = strtol(curr_token.literal, NULL, 10);
-    return e;
+    return (header){
+        .exp = e,
+    };
 }
 
-static exp *parse_inflix_expression(exp *left)
+static header parse_inflix_expression(header h)
 {
     exp_inflix *e = malloc(sizeof(exp_inflix));
     e->token = curr_token;
     e->op = strdup(curr_token.literal);
-    e->left = left;
+    e->left = h;
 
     precedence p = precedence_by_token(curr_token);
     tokens_advance();
     e->right = parse_expression(p);
-
-    return e;
+    return (header){
+        .exp = e,
+    };
 }
 
-static exp *parse_prefix_expression()
+static header parse_prefix_expression()
 {
     exp_prefix *e = malloc(sizeof(exp_prefix));
     e->token = curr_token;
     e->op = strdup(curr_token.literal);
     tokens_advance();
     e->right = parse_expression(P_PREFIX);
-    return e;
+    return (header){
+        .exp = e,
+    };
 }
 
-static exp *parse_ident_expression()
+static header parse_ident_expression()
 {
     exp_identifier *e = malloc(sizeof(exp_identifier));
     e->token = curr_token;
     e->value = strdup(curr_token.literal);
-    return e;
+    return (header){
+        .exp = e,
+    };
 }
 
-static parse_fn get_parse_fn()
+static parse_fn get_parse_prefix_fn()
 {
     switch (curr_token.token) {
     case T_IDENT:
@@ -162,15 +173,15 @@ static parse_inflix_fn get_parse_inflix_fn(token t)
     }
 }
 
-static exp *parse_expression(precedence p)
+static header parse_expression(precedence p)
 {
-    parse_fn prefix_fn = get_parse_fn();
+    parse_fn prefix_fn = get_parse_prefix_fn();
     if (prefix_fn == NULL) {
         printf("prefix_fn func not for %s found\n", curr_token.literal);
         abort();
     }
 
-    exp *leftExp = prefix_fn();
+    header leftExp = prefix_fn();
 
     while (next_token.token != T_SEMICOLON && p < precedence_by_token(next_token)) {
         parse_inflix_fn inflix_fn = get_parse_inflix_fn(next_token);

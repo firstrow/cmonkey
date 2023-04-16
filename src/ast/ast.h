@@ -7,9 +7,15 @@ typedef void exp;
 
 typedef struct
 {
+    void (*print_fn)(void *);
+    exp *exp; // hold expression: exp_integer, etc...
+} header;
+
+typedef struct
+{
     token token;
     char *literal;
-    exp *exp;
+    header exp;
 } statement;
 
 // expressions
@@ -30,15 +36,15 @@ typedef struct
 {
     token token;
     char *op;
-    exp *right;
+    header right;
 } exp_prefix;
 
 typedef struct
 {
     token token;
-    exp *left;
+    header left;
     char *op;
-    exp *right;
+    header right;
 } exp_inflix;
 
 statement *ast_parse(lexer *l, int *len);
