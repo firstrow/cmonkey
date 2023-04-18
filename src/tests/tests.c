@@ -341,7 +341,6 @@ static void test_inflix_expression_strings()
         char *two;
     } test_t;
 
-    int n = 8;
     test_t testcases[] = {
         {
             "3 + 4 * 5 == 3 * 1 + 4 * 5",
@@ -375,12 +374,85 @@ static void test_inflix_expression_strings()
             "5 < 4 != 3 > 4",
             "((5 < 4) != (3 > 4))",
         },
+        {
+            "true",
+            "true",
+        },
+        {
+            "false",
+            "false",
+        },
+        {
+            "3 > 5 == false",
+            "((3 > 5) == false)",
+        },
+        {
+            "3 < 5 == true",
+            "((3 < 5) == true)",
+        },
+
+        {.one = NULL},
     };
 
     bool r;
     str *buf = str_new("");
 
-    for (int j = 0; j < n; j++) {
+    for (int j = 0; j < 100; j++) {
+        if (testcases[j].one == NULL)
+            break;
+
+        int i = 0;
+        lexer l = lexer_new(testcases[j].one);
+        statement *sts = ast_parse(&l, &i);
+
+        ast_to_str(buf, sts, i);
+        r = str_cmp_char(buf, testcases[j].two);
+        if (!r) {
+            printf("exp: %s\n", testcases[j].two);
+            printf("got: %s\n", buf->data);
+            assert(r);
+        }
+
+        free(sts);
+        str_reset(buf);
+    }
+}
+
+static void test_boolean_expressions()
+{
+    typedef struct
+    {
+        char *one;
+        char *two;
+    } test_t;
+
+    test_t testcases[] = {
+        {
+            "true",
+            "true",
+        },
+        {
+            "false",
+            "false",
+        },
+        {
+            "3 > 5 == false",
+            "((3 > 5) == false)",
+        },
+        {
+            "3 < 5 == true",
+            "((3 < 5) == true)",
+        },
+        {.one = NULL},
+    };
+
+    bool r;
+    str *buf = str_new("");
+
+    for (int j = 0; j < 100; j++) {
+        if (testcases[j].one == NULL)
+            break;
+
         int i = 0;
         lexer l = lexer_new(testcases[j].one);
         statement *sts = ast_parse(&l, &i);
@@ -412,6 +484,7 @@ int main(int argc, char *argv[])
     test_prefix_expression();
     test_inflix_expression();
     test_inflix_expression_strings();
+    // test_boolean_expressions();
 
     printf("all tests passed\r\n");
 }

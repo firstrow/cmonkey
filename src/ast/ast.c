@@ -97,6 +97,15 @@ static void print_exp_integer(str *buf, exp *exp)
     str_appendf(buf, "%d", e->value);
 }
 
+static void print_boolean_exp(str *buf, exp *exp)
+{
+    exp_boolean *e = exp;
+    if (e->value == true)
+        str_appendf(buf, "true");
+    else
+        str_appendf(buf, "false");
+}
+
 static void print_inflix_exp(str *buf, exp *exp)
 {
     exp_inflix *e = exp;
@@ -173,6 +182,17 @@ static header parse_ident_expression()
     };
 }
 
+static header parse_boolean_expression()
+{
+    exp_boolean *e = malloc(sizeof(exp_boolean));
+    e->token = curr_token;
+    e->value = (strcmp(curr_token.literal, "true") == 0);
+    return (header){
+        .print_fn = &print_boolean_exp,
+        .exp = e,
+    };
+}
+
 static parse_fn get_parse_prefix_fn()
 {
     switch (curr_token.token) {
@@ -183,6 +203,9 @@ static parse_fn get_parse_prefix_fn()
     case T_MINUS:
     case T_BANG:
         return &parse_prefix_expression;
+    case T_TRUE:
+    case T_FALSE:
+        return &parse_boolean_expression;
     default:
         return NULL;
     }
@@ -209,7 +232,7 @@ static header parse_expression(precedence p)
 {
     parse_fn prefix_fn = get_parse_prefix_fn();
     if (prefix_fn == NULL) {
-        printf("prefix_fn func not for %s found\n", curr_token.literal);
+        printf("prefix_fn func not found for: '%s'\n", curr_token.literal);
         abort();
     }
 

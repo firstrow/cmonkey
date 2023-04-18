@@ -3,6 +3,7 @@
 
 #include "ast/str.h"
 #include "lexer/lexer.h"
+#include <stdbool.h>
 
 typedef void exp;
 
@@ -32,6 +33,12 @@ typedef struct
     token token;
     int value;
 } exp_integer;
+
+typedef struct
+{
+    token token;
+    bool value;
+} exp_boolean;
 
 typedef struct
 {
