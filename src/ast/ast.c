@@ -98,18 +98,23 @@ static void print_exp_integer(exp *exp)
 
 static void print_inflix_exp(exp *exp)
 {
+    // char *local_buf = malloc(sizeof(char) * 64);
+
     exp_inflix *e = exp;
     printf("(");
     e->left.print_fn(e->left.exp);
     printf(" %s ", e->op);
     e->right.print_fn(e->right.exp);
     printf(")");
+
+    // sprintf(buf, "%s", local_buf);
+    // free(local_buf);
 }
 
 static void print_prefix_exp(exp *exp)
 {
     exp_prefix *e = exp;
-    printf("(");
+    printf(")");
     printf(" %s ", e->op);
     e->right.print_fn(e->right.exp);
     printf(")");

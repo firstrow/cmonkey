@@ -10,6 +10,7 @@ set(SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/include/array_list/array_list.c
     ${PROJECT_SOURCE_DIR}/src/lexer/lexer.c
     ${PROJECT_SOURCE_DIR}/src/ast/ast.c
+    ${PROJECT_SOURCE_DIR}/src/ast/str.c
 )
 
 add_executable(${SHORT_NAME} ${SOURCE_FILES} ${PROJECT_SOURCE_DIR}/src/main/main.c)

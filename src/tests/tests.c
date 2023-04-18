@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "ast/ast.h"
+#include "ast/str.h"
 
 static void test_lexer_read_char()
 {
@@ -338,6 +339,30 @@ static void test_inflix_expression()
     free(sts);
 }
 
+static void test_inflix_expression_strings()
+{
+    typedef struct
+    {
+        char *one;
+        char *two;
+    } test_t;
+
+    int n = 0;
+    test_t testcases[] = {
+        {
+            .one = "sdfsdf",
+            .two = "234324",
+        },
+    };
+
+    for (int j = 0; j < n; j++) {
+        int i;
+        lexer l = lexer_new(testcases[n].one);
+        statement *sts = ast_parse(&l, &i);
+        free(sts);
+    }
+}
+
 int main(int argc, char *argv[])
 {
     test_lexer_read_char();
@@ -351,6 +376,7 @@ int main(int argc, char *argv[])
     test_integer_expression();
     test_prefix_expression();
     test_inflix_expression();
+    test_inflix_expression_strings();
 
     printf("all tests passed\r\n");
 }
