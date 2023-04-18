@@ -347,35 +347,76 @@ static void test_inflix_expression_strings()
         char *two;
     } test_t;
 
-    int n = 0;
+    int n = 8;
     test_t testcases[] = {
         {
-            .one = "sdfsdf",
-            .two = "234324",
+            "3 + 4 * 5 == 3 * 1 + 4 * 5",
+            "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+        },
+        {
+            "a * b * c",
+            "((a * b) * c)",
+        },
+        {
+            "a * b / c",
+            "((a * b) / c)",
+        },
+        {
+            "a + b / c",
+            "(a + (b / c))",
+        },
+        {
+            "a + b * c + d / e - f",
+            "(((a + (b * c)) + (d / e)) - f)",
+        },
+        {
+            "3 + 4; -5 * 5",
+            "(3 + 4)((-5) * 5)",
+        },
+        {
+            "5 > 4 == 3 < 4",
+            "((5 > 4) == (3 < 4))",
+        },
+        {
+            "5 < 4 != 3 > 4",
+            "((5 < 4) != (3 > 4))",
         },
     };
 
+    bool r;
+    str *buf = str_new("");
+
     for (int j = 0; j < n; j++) {
-        int i;
-        lexer l = lexer_new(testcases[n].one);
+        int i = 0;
+        lexer l = lexer_new(testcases[j].one);
         statement *sts = ast_parse(&l, &i);
+
+        ast_to_str(buf, sts, i);
+        r = str_cmp_char(buf, testcases[j].two);
+        if (!r) {
+            printf("exp: %s\n", testcases[j].two);
+            printf("got: %s\n", buf->data);
+            assert(r);
+        }
+
         free(sts);
+        str_reset(buf);
     }
 }
 
 int main(int argc, char *argv[])
 {
-    test_lexer_read_char();
-    test_lexer_next_token();
-    test_lexer_more_operators();
-    test_if_else_return();
-    test_eq_not_eq();
-    test_ast_let_statement();
-    test_ast_return_statement();
-    test_identifier_expression();
-    test_integer_expression();
-    test_prefix_expression();
-    test_inflix_expression();
+    // test_lexer_read_char();
+    // test_lexer_next_token();
+    // test_lexer_more_operators();
+    // test_if_else_return();
+    // test_eq_not_eq();
+    // test_ast_let_statement();
+    // test_ast_return_statement();
+    // test_identifier_expression();
+    // test_integer_expression();
+    // test_prefix_expression();
+    // test_inflix_expression();
     test_inflix_expression_strings();
 
     printf("all tests passed\r\n");

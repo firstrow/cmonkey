@@ -13,7 +13,8 @@ str *str_new(char *initial_value)
     s->len = 0;
     s->data = malloc(sizeof(char) * 128);
 
-    str_appendf(s, "%s", initial_value);
+    if (strlen(initial_value))
+        str_appendf(s, "%s", initial_value);
 
     return s;
 }
@@ -63,4 +64,9 @@ void str_free(str *s)
 bool str_cmp(str *s1, str *s2)
 {
     return strcmp(s1->data, s2->data) == 0;
+}
+
+bool str_cmp_char(str *s1, char *s2)
+{
+    return strcmp(s1->data, s2) == 0;
 }

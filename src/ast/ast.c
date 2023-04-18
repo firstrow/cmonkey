@@ -94,7 +94,7 @@ static precedence precedence_by_token(token t)
 static void print_exp_integer(str *buf, exp *exp)
 {
     exp_integer *e = exp;
-    str_appendf(buf, " %d ", e->value);
+    str_appendf(buf, "%d", e->value);
 }
 
 static void print_inflix_exp(str *buf, exp *exp)
@@ -110,8 +110,8 @@ static void print_inflix_exp(str *buf, exp *exp)
 static void print_prefix_exp(str *buf, exp *exp)
 {
     exp_prefix *e = exp;
-    str_appendf(buf, ")");
-    str_appendf(buf, " %s ", e->op);
+    str_appendf(buf, "(");
+    str_appendf(buf, "%s", e->op);
     e->right.print_fn(buf, e->right.exp);
     str_appendf(buf, ")");
 }
@@ -119,9 +119,7 @@ static void print_prefix_exp(str *buf, exp *exp)
 static void print_ident_exp(str *buf, exp *exp)
 {
     exp_identifier *e = exp;
-    str_appendf(buf, "(");
-    str_appendf(buf, " %s ", e->value);
-    str_appendf(buf, ")");
+    str_appendf(buf, "%s", e->value);
 }
 
 static header parse_integer_expression()
@@ -249,6 +247,12 @@ void print_sts(statement *sts, int len)
         printf("%s\n", buf->data);
         str_reset(buf);
     }
+}
+
+void ast_to_str(str *buf, statement *sts, int len)
+{
+    for (int i = 0; i < len; i++)
+        sts[i].exp.print_fn(buf, sts[i].exp.exp);
 }
 
 statement *ast_parse(lexer *lex, int *len)
