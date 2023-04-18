@@ -1,13 +1,14 @@
 #ifndef AST_H
 #define AST_H
 
+#include "ast/str.h"
 #include "lexer/lexer.h"
 
 typedef void exp;
 
 typedef struct
 {
-    void (*print_fn)(exp *);
+    void (*print_fn)(str *buf, exp *);
     exp *exp; // hold expression: exp_integer, etc...
 } header;
 

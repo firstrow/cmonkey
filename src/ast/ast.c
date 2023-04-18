@@ -1,4 +1,5 @@
 #include "ast/ast.h"
+#include "ast/str.h"
 #include "lexer/lexer.h"
 #include <stdbool.h>
 #include <stdio.h>
@@ -90,42 +91,37 @@ static precedence precedence_by_token(token t)
     }
 }
 
-static void print_exp_integer(exp *exp)
+static void print_exp_integer(str *buf, exp *exp)
 {
     exp_integer *e = exp;
-    printf(" %d ", e->value);
+    str_appendf(buf, " %d ", e->value);
 }
 
-static void print_inflix_exp(exp *exp)
+static void print_inflix_exp(str *buf, exp *exp)
 {
-    // char *local_buf = malloc(sizeof(char) * 64);
-
     exp_inflix *e = exp;
-    printf("(");
-    e->left.print_fn(e->left.exp);
-    printf(" %s ", e->op);
-    e->right.print_fn(e->right.exp);
-    printf(")");
-
-    // sprintf(buf, "%s", local_buf);
-    // free(local_buf);
+    str_appendf(buf, "(");
+    e->left.print_fn(buf, e->left.exp);
+    str_appendf(buf, " %s ", e->op);
+    e->right.print_fn(buf, e->right.exp);
+    str_appendf(buf, ")");
 }
 
-static void print_prefix_exp(exp *exp)
+static void print_prefix_exp(str *buf, exp *exp)
 {
     exp_prefix *e = exp;
-    printf(")");
-    printf(" %s ", e->op);
-    e->right.print_fn(e->right.exp);
-    printf(")");
+    str_appendf(buf, ")");
+    str_appendf(buf, " %s ", e->op);
+    e->right.print_fn(buf, e->right.exp);
+    str_appendf(buf, ")");
 }
 
-static void print_ident_exp(exp *exp)
+static void print_ident_exp(str *buf, exp *exp)
 {
     exp_identifier *e = exp;
-    printf("(");
-    printf(" %s ", e->value);
-    printf(")");
+    str_appendf(buf, "(");
+    str_appendf(buf, " %s ", e->value);
+    str_appendf(buf, ")");
 }
 
 static header parse_integer_expression()
@@ -247,13 +243,12 @@ static int parse_expression_statement(statement *s)
 
 void print_sts(statement *sts, int len)
 {
-    printf(">>>>>>>>>>>>>>>>>>>>>\r\n");
+    str *buf = str_new("");
     for (int i = 0; i < len; i++) {
-        // printf("token: %d\r\n", sts[i].token.token);
-        sts[i].exp.print_fn(sts[i].exp.exp);
-        printf("\r\n");
+        sts[i].exp.print_fn(buf, sts[i].exp.exp);
+        printf("%s\n", buf->data);
+        str_reset(buf);
     }
-    printf(">>>>>>>>>>>>>>>>>>>>>\r\n");
 }
 
 statement *ast_parse(lexer *lex, int *len)
