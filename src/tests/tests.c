@@ -198,8 +198,6 @@ static void test_ast_let_statement()
     lexer l = lexer_new(input);
     statement *sts = ast_parse(&l, &i);
 
-    // print_sts(sts, i);
-
     assert(i == 6);
     assert(sts[0].token.token == T_LET);
     assert(strcmp(sts[0].literal, "x") == 0);
@@ -277,8 +275,6 @@ static void test_prefix_expression()
     lexer l = lexer_new(input);
     statement *sts = ast_parse(&l, &i);
 
-    // print_sts(sts, i);
-
     assert(i == 2);
     assert(sts[0].token.token == T_BANG);
     exp_prefix *exp = sts[0].exp.exp;
@@ -308,8 +304,6 @@ static void test_inflix_expression()
     int i;
     lexer l = lexer_new(input);
     statement *sts = ast_parse(&l, &i);
-
-    print_sts(sts, i);
 
     assert(i == 3);
     assert(sts[0].token.token == T_INT);
@@ -406,17 +400,17 @@ static void test_inflix_expression_strings()
 
 int main(int argc, char *argv[])
 {
-    // test_lexer_read_char();
-    // test_lexer_next_token();
-    // test_lexer_more_operators();
-    // test_if_else_return();
-    // test_eq_not_eq();
-    // test_ast_let_statement();
-    // test_ast_return_statement();
-    // test_identifier_expression();
-    // test_integer_expression();
-    // test_prefix_expression();
-    // test_inflix_expression();
+    test_lexer_read_char();
+    test_lexer_next_token();
+    test_lexer_more_operators();
+    test_if_else_return();
+    test_eq_not_eq();
+    test_ast_let_statement();
+    test_ast_return_statement();
+    test_identifier_expression();
+    test_integer_expression();
+    test_prefix_expression();
+    test_inflix_expression();
     test_inflix_expression_strings();
 
     printf("all tests passed\r\n");
