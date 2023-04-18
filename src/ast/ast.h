@@ -20,6 +20,11 @@ typedef struct
     header exp;
 } statement;
 
+typedef struct {
+    int len;
+    statement *sts;
+} statements;
+
 // expressions
 
 typedef struct
@@ -55,8 +60,8 @@ typedef struct
     header right;
 } exp_inflix;
 
-statement *ast_parse(lexer *l, int *len);
-void print_sts(statement *sts, int len);
-void ast_to_str(str *buf, statement *sts, int len);
+statements ast_parse(lexer *l);
+void print_sts(statements sts);
+void ast_to_str(str *buf, statements sts);
 
 #endif // AST_H

@@ -277,27 +277,32 @@ static int parse_expression_statement(statement *s)
     return -1;
 }
 
-void print_sts(statement *sts, int len)
+void print_sts(statements sts)
 {
-    str *buf = str_new("");
-    for (int i = 0; i < len; i++) {
-        sts[i].exp.print_fn(buf, sts[i].exp.exp);
+    str *buf = str_new(NULL);
+    for (int i = 0; i < sts.len; i++) {
+        sts.sts[i].exp.print_fn(buf, sts.sts[i].exp.exp);
         printf("%s\n", buf->data);
         str_reset(buf);
     }
 }
 
-void ast_to_str(str *buf, statement *sts, int len)
+void ast_to_str(str *buf, statements sts)
 {
-    for (int i = 0; i < len; i++)
-        sts[i].exp.print_fn(buf, sts[i].exp.exp);
+    for (int i = 0; i < sts.len; i++)
+        sts.sts[i].exp.print_fn(buf, sts.sts[i].exp.exp);
 }
 
-statement *ast_parse(lexer *lex, int *len)
+statements ast_parse(lexer *lex)
 {
     arr_len = 0;
     l = lex;
-    statement *sts = malloc(sizeof(statement) * arr_cap);
+
+    statements result = {
+        .len = 0,
+        .sts = malloc(sizeof(statement) * arr_cap),
+    };
+
     tokens_advance();
     tokens_advance();
 
@@ -326,11 +331,11 @@ statement *ast_parse(lexer *lex, int *len)
         }
 
         if (s.token.token > 0)
-            add_statement(sts, s);
+            add_statement(result.sts, s);
 
         tokens_advance();
     }
 
-    *len = arr_len;
-    return sts;
+    result.len = arr_len;
+    return result;
 }

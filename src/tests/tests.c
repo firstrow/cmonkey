@@ -194,21 +194,20 @@ static void test_ast_let_statement()
         let foobar = 123; \n\
         ";
 
-    int i;
     lexer l = lexer_new(input);
-    statement *sts = ast_parse(&l, &i);
+    statements sts = ast_parse(&l);
 
-    assert(i == 6);
-    assert(sts[0].token.token == T_LET);
-    assert(strcmp(sts[0].literal, "x") == 0);
+    assert(sts.len == 6);
+    assert(sts.sts[0].token.token == T_LET);
+    assert(strcmp(sts.sts[0].literal, "x") == 0);
 
-    assert(sts[2].token.token == T_LET);
-    assert(strcmp(sts[2].literal, "y") == 0);
+    assert(sts.sts[2].token.token == T_LET);
+    assert(strcmp(sts.sts[2].literal, "y") == 0);
 
-    assert(sts[4].token.token == T_LET);
-    assert(strcmp(sts[4].literal, "foobar") == 0);
+    assert(sts.sts[4].token.token == T_LET);
+    assert(strcmp(sts.sts[4].literal, "foobar") == 0);
 
-    free(sts);
+    free(sts.sts);
 }
 
 static void test_ast_return_statement()
@@ -219,49 +218,46 @@ static void test_ast_return_statement()
         return 123;      \n\
         ";
 
-    int i;
     lexer l = lexer_new(input);
-    statement *sts = ast_parse(&l, &i);
+    statements sts = ast_parse(&l);
 
-    assert(i == 3);
-    assert(sts[0].token.token == T_RETURN);
-    assert(sts[1].token.token == T_RETURN);
-    assert(sts[2].token.token == T_RETURN);
+    assert(sts.len == 3);
+    assert(sts.sts[0].token.token == T_RETURN);
+    assert(sts.sts[1].token.token == T_RETURN);
+    assert(sts.sts[2].token.token == T_RETURN);
 
-    free(sts);
+    free(sts.sts);
 }
 
 static void test_identifier_expression()
 {
     char *input = "foobar;";
 
-    int i;
     lexer l = lexer_new(input);
-    statement *sts = ast_parse(&l, &i);
+    statements sts = ast_parse(&l);
 
-    assert(i == 1);
-    assert(sts[0].token.token == T_IDENT);
+    assert(sts.len == 1);
+    assert(sts.sts[0].token.token == T_IDENT);
 
-    exp_identifier *exp = (exp_identifier *)sts[0].exp.exp;
+    exp_identifier *exp = (exp_identifier *)sts.sts[0].exp.exp;
     assert(strcmp(exp->value, "foobar") == 0);
 
-    free(sts);
+    free(sts.sts);
 }
 
 static void test_integer_expression()
 {
     char *input = "5;";
 
-    int i;
     lexer l = lexer_new(input);
-    statement *sts = ast_parse(&l, &i);
+    statements sts = ast_parse(&l);
 
-    assert(i == 1);
-    assert(sts[0].token.token == T_INT);
-    exp_integer *exp = sts[0].exp.exp;
+    assert(sts.len == 1);
+    assert(sts.sts[0].token.token == T_INT);
+    exp_integer *exp = sts.sts[0].exp.exp;
     assert(exp->value == 5);
 
-    free(sts);
+    free(sts.sts);
 }
 
 static void test_prefix_expression()
@@ -271,26 +267,25 @@ static void test_prefix_expression()
         -15;        \n\
         ";
 
-    int i;
     lexer l = lexer_new(input);
-    statement *sts = ast_parse(&l, &i);
+    statements sts = ast_parse(&l);
 
-    assert(i == 2);
-    assert(sts[0].token.token == T_BANG);
-    exp_prefix *exp = sts[0].exp.exp;
+    assert(sts.len == 2);
+    assert(sts.sts[0].token.token == T_BANG);
+    exp_prefix *exp = sts.sts[0].exp.exp;
     exp_integer *right_exp = exp->right.exp;
     assert(strcmp(exp->op, "!") == 0);
     assert(right_exp->token.token == T_INT);
     assert(right_exp->value == 5);
 
-    assert(sts[1].token.token == T_MINUS);
-    exp = sts[1].exp.exp;
+    assert(sts.sts[1].token.token == T_MINUS);
+    exp = sts.sts[1].exp.exp;
     right_exp = exp->right.exp;
     assert(strcmp(exp->op, "-") == 0);
     assert(right_exp->token.token == T_INT);
     assert(right_exp->value == 15);
 
-    free(sts);
+    free(sts.sts);
 }
 
 static void test_inflix_expression()
@@ -301,14 +296,13 @@ static void test_inflix_expression()
         4 == 3; \n\
         ";
 
-    int i;
     lexer l = lexer_new(input);
-    statement *sts = ast_parse(&l, &i);
+    statements sts = ast_parse(&l);
 
-    assert(i == 3);
-    assert(sts[0].token.token == T_INT);
+    assert(sts.len == 3);
+    assert(sts.sts[0].token.token == T_INT);
 
-    exp_inflix *exp = sts[0].exp.exp;
+    exp_inflix *exp = sts.sts[0].exp.exp;
     exp_integer *left = exp->left.exp;
     exp_integer *right = exp->right.exp;
 
@@ -316,21 +310,21 @@ static void test_inflix_expression()
     assert(left->value == 5);
     assert(right->value == 5);
 
-    exp = sts[1].exp.exp;
+    exp = sts.sts[1].exp.exp;
     left = exp->left.exp;
     right = exp->right.exp;
     assert(strcmp(exp->op, "-") == 0);
     assert(left->value == 6);
     assert(right->value == 5);
 
-    exp = sts[2].exp.exp;
+    exp = sts.sts[2].exp.exp;
     left = exp->left.exp;
     right = exp->right.exp;
     assert(strcmp(exp->op, "==") == 0);
     assert(left->value == 4);
     assert(right->value == 3);
 
-    free(sts);
+    free(sts.sts);
 }
 
 static void test_inflix_expression_strings()
@@ -412,23 +406,22 @@ static void test_inflix_expression_strings()
     bool r;
     str *buf = str_new("");
 
-    for (int j = 0; j < 100; j++) {
-        if (testcases[j].one == NULL)
+    for (int i = 0; i < 100; i++) {
+        if (testcases[i].one == NULL)
             break;
 
-        int i = 0;
-        lexer l = lexer_new(testcases[j].one);
-        statement *sts = ast_parse(&l, &i);
+        lexer l = lexer_new(testcases[i].one);
+        statements sts = ast_parse(&l);
 
-        ast_to_str(buf, sts, i);
-        r = str_cmp_char(buf, testcases[j].two);
+        ast_to_str(buf, sts);
+        r = str_cmp_char(buf, testcases[i].two);
         if (!r) {
-            printf("exp: %s\n", testcases[j].two);
+            printf("exp: %s\n", testcases[i].two);
             printf("got: %s\n", buf->data);
             assert(r);
         }
 
-        free(sts);
+        free(sts.sts);
         str_reset(buf);
     }
 }
