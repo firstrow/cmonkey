@@ -1,6 +1,7 @@
 #ifndef STR_H
 #define STR_H
 
+#include <stdbool.h>
 #include <stddef.h>
 
 typedef struct {
@@ -13,5 +14,6 @@ str *str_new(char *initial_value);
 void str_appendf(str *s, const char *format, ...);
 void str_reset(str *s);
 void str_free(str *s);
+bool str_cmp(str *s1, str *s2);
 
 #endif // STR_H

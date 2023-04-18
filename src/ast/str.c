@@ -1,5 +1,6 @@
 #include "ast/str.h"
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -57,4 +58,9 @@ void str_free(str *s)
 {
     free(s->data);
     free(s);
+}
+
+bool str_cmp(str *s1, str *s2)
+{
+    return strcmp(s1->data, s2->data) == 0;
 }
