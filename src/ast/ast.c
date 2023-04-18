@@ -193,6 +193,19 @@ static header parse_boolean_expression()
     };
 }
 
+static header parse_group_expression()
+{
+    tokens_advance();
+
+    header exp = parse_expression(P_LOWEST);
+
+    if (!expect_next_token(T_RPAREN))
+        return (header){.exp = NULL};
+
+    tokens_advance();
+    return exp;
+}
+
 static parse_fn get_parse_prefix_fn()
 {
     switch (curr_token.token) {
@@ -206,6 +219,8 @@ static parse_fn get_parse_prefix_fn()
     case T_TRUE:
     case T_FALSE:
         return &parse_boolean_expression;
+    case T_LPAREN:
+        return &parse_group_expression;
     default:
         return NULL;
     }
