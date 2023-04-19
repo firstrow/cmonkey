@@ -426,6 +426,20 @@ static void test_inflix_expression_strings()
     }
 }
 
+static void test_if_expression()
+{
+    char *input = "if (x > y) { return x } else { return y };";
+
+    lexer l = lexer_new(input);
+    statements sts = ast_parse(&l);
+
+    assert(sts.len == 1);
+    assert(sts.sts[0].token.token == T_IF);
+
+    // exp_if *exp = sts.sts[0].exp.exp;
+    // exp_inflix *cond = exp->condition.exp;
+}
+
 int main(int argc, char *argv[])
 {
     test_lexer_read_char();
@@ -440,6 +454,7 @@ int main(int argc, char *argv[])
     test_prefix_expression();
     test_inflix_expression();
     test_inflix_expression_strings();
+    test_if_expression();
 
     printf("all tests passed\r\n");
 }

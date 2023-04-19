@@ -10,7 +10,7 @@ typedef void exp;
 typedef struct
 {
     void (*print_fn)(str *buf, exp *);
-    exp *exp; // hold expression: exp_integer, etc...
+    exp *exp; // holds expression: exp_integer, etc...
 } header;
 
 typedef struct
@@ -59,6 +59,14 @@ typedef struct
     char *op;
     header right;
 } exp_inflix;
+
+typedef struct
+{
+    token token;
+    header condition;
+    statements consequence;
+    statements alternative;
+} exp_if;
 
 statements ast_parse(lexer *l);
 void print_sts(statements sts);

@@ -2,12 +2,12 @@
 #include "ast/str.h"
 #include "lexer/lexer.h"
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 const int arr_cap = 128;
-static int arr_len;
 
 static lexer *l;
 static token curr_token;
@@ -18,10 +18,10 @@ static header parse_expression(precedence);
 typedef header (*parse_fn)();
 typedef header (*parse_inflix_fn)(header);
 
-static void add_statement(statement *arr, statement s)
+static void add_statement(statements *sts, statement s)
 {
-    arr[arr_len] = s;
-    arr_len++;
+    sts->sts[sts->len] = s;
+    sts->len++;
 }
 
 static void tokens_advance()
@@ -125,6 +125,11 @@ static void print_prefix_exp(str *buf, exp *exp)
     str_appendf(buf, ")");
 }
 
+static void print_if_exp(str *buf, exp *exp)
+{
+    str_appendf(buf, "TODO IF PRINTIN");
+}
+
 static void print_ident_exp(str *buf, exp *exp)
 {
     exp_identifier *e = exp;
@@ -206,6 +211,33 @@ static header parse_group_expression()
     return exp;
 }
 
+static header parse_if_expression()
+{
+    tokens_advance();
+
+    exp_if *e = malloc(sizeof(exp_if));
+    e->token = curr_token;
+
+    // TODO: check for null
+    header cond_exp = parse_expression(P_LOWEST);
+    e->condition = cond_exp;
+
+    if (curr_token.token != T_RPAREN)
+        return (header){.exp = NULL};
+
+    tokens_advance();
+
+    if (curr_token.token != T_LBRACE)
+        return (header){.exp = NULL};
+
+    tokens_advance();
+
+    return (header){
+        .print_fn = &print_if_exp,
+        .exp = e,
+    };
+}
+
 static parse_fn get_parse_prefix_fn()
 {
     switch (curr_token.token) {
@@ -221,6 +253,8 @@ static parse_fn get_parse_prefix_fn()
         return &parse_boolean_expression;
     case T_LPAREN:
         return &parse_group_expression;
+    case T_IF:
+        return &parse_if_expression;
     default:
         return NULL;
     }
@@ -295,7 +329,6 @@ void ast_to_str(str *buf, statements sts)
 
 statements ast_parse(lexer *lex)
 {
-    arr_len = 0;
     l = lex;
 
     statements result = {
@@ -331,11 +364,10 @@ statements ast_parse(lexer *lex)
         }
 
         if (s.token.token > 0)
-            add_statement(result.sts, s);
+            add_statement(&result, s);
 
         tokens_advance();
     }
 
-    result.len = arr_len;
     return result;
 }
