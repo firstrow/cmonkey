@@ -13,7 +13,7 @@ str *str_new(char *initial_value)
     s->len = 0;
     s->data = malloc(sizeof(char) * 128);
 
-    if (strlen(initial_value))
+    if (initial_value != NULL && strlen(initial_value))
         str_appendf(s, "%s", initial_value);
 
     return s;

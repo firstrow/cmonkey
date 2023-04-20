@@ -42,21 +42,41 @@ static int error(char *s)
     return -1;
 }
 
+static void print_let_exp(str *buf, exp *e)
+{
+    // exp_identifier *e = exp;
+    // str_appendf(buf, "%s", e->value);
+    str_appendf(buf, "%s", "TODO PRINT LET EXP");
+}
+
 static int parse_let_statement(statement *s)
 {
     s->token = curr_token;
+    s->literal = strdup(curr_token.literal);
 
     if (!expect_next_token(T_IDENT))
-        return error("expected token to be T_INDENT");
-
-    s->literal = strdup(next_token.literal);
+        return error("failed T_IDENT check");
 
     tokens_advance();
+    let_statement *e = malloc(sizeof(let_statement));
+    e->token = curr_token;
+    e->name = strdup(curr_token.literal);
 
     if (!expect_next_token(T_ASSIGN))
-        return error("expected token to be T_EQ");
+        return error("failed T_ASSIGN check");
 
-    tokens_advance();
+    tokens_advance(); // =
+    tokens_advance(); // expression
+
+    e->value = parse_expression(P_LOWEST);
+
+    s->exp = (header){
+        .print_fn = &print_let_exp,
+        .exp = e,
+    };
+
+    if (next_token.token == T_SEMICOLON)
+        tokens_advance();
 
     return -1;
 }
@@ -64,9 +84,15 @@ static int parse_let_statement(statement *s)
 static int parse_return_statement(statement *s)
 {
     s->token = curr_token;
+    s->literal = strdup(curr_token.literal);
+
+    tokens_advance();
+    return_statement *e = malloc(sizeof(return_statement));
+    e->token = curr_token;
+    e->value = parse_expression(P_LOWEST);
 
     // TODO: check for EOF
-    while (curr_token.token != T_SEMICOLON)
+    while (curr_token.token != T_SEMICOLON && !l->eof)
         tokens_advance();
 
     return -1;
@@ -223,13 +249,11 @@ static statements parse_block()
         if (l->eof)
             break;
         if (curr_token.token == T_RBRACE) {
-
             tokens_advance();
             break;
         }
 
         statement s = parse_statement();
-
         if (s.token.token == 0)
             return sts;
 
@@ -317,7 +341,7 @@ static header parse_expression(precedence p)
 {
     parse_fn prefix_fn = get_parse_prefix_fn();
     if (prefix_fn == NULL) {
-        printf("prefix_fn func not found for: '%s'\n", curr_token.literal);
+        printf("prefix_fn func not found for '%s'\n", curr_token.literal);
         abort();
     }
 
@@ -377,7 +401,13 @@ void print_sts(statements sts)
 {
     str *buf = str_new(NULL);
     for (int i = 0; i < sts.len; i++) {
+        if (sts.sts[i].exp.print_fn == NULL) {
+            printf("token: %s\n", sts.sts[i].token.literal);
+            // TODO: print return and let expressions;
+            continue;
+        }
         sts.sts[i].exp.print_fn(buf, sts.sts[i].exp.exp);
+
         printf("%s\n", buf->data);
         str_reset(buf);
     }
@@ -385,8 +415,9 @@ void print_sts(statements sts)
 
 void ast_to_str(str *buf, statements sts)
 {
-    for (int i = 0; i < sts.len; i++)
+    for (int i = 0; i < sts.len; i++) {
         sts.sts[i].exp.print_fn(buf, sts.sts[i].exp.exp);
+    }
 }
 
 statements ast_parse(lexer *lex)

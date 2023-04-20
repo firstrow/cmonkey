@@ -191,21 +191,32 @@ static void test_ast_let_statement()
     char *input = "       \n\
         let x = 5;        \n\
         let y = 10;       \n\
-        let foobar = 123; \n\
+        let foobar = abc; \n\
         ";
 
     lexer l = lexer_new(input);
     statements sts = ast_parse(&l);
 
-    assert(sts.len == 6);
+    assert(sts.len == 3);
     assert(sts.sts[0].token.token == T_LET);
-    assert(strcmp(sts.sts[0].literal, "x") == 0);
 
-    assert(sts.sts[2].token.token == T_LET);
-    assert(strcmp(sts.sts[2].literal, "y") == 0);
+    let_statement *exp = sts.sts[0].exp.exp;
+    exp_integer *int_exp = exp->value.exp;
+    assert(exp->token.token == T_IDENT);
+    assert(strcmp(exp->name, "x") == 0);
+    assert(int_exp->value == 5);
 
-    assert(sts.sts[4].token.token == T_LET);
-    assert(strcmp(sts.sts[4].literal, "foobar") == 0);
+    exp = sts.sts[1].exp.exp;
+    int_exp = exp->value.exp;
+    assert(exp->token.token == T_IDENT);
+    assert(strcmp(exp->name, "y") == 0);
+    assert(int_exp->value == 10);
+
+    exp = sts.sts[2].exp.exp;
+    exp_identifier *ident_exp = ident_exp = exp->value.exp;
+    assert(exp->token.token == T_IDENT);
+    assert(strcmp(exp->name, "foobar") == 0);
+    assert(strcmp(ident_exp->value, "abc") == 0);
 
     free(sts.sts);
 }
@@ -428,16 +439,23 @@ static void test_inflix_expression_strings()
 
 static void test_if_expression()
 {
-    char *input = "if (x > y) { return x; let a = 10; } else { return y };";
+    char *input = "if (x > y) { return x; let a = 10; } else { return y; let b = 10 * 10 };";
 
     lexer l = lexer_new(input);
     statements sts = ast_parse(&l);
+    str *buf = str_new("");
 
     assert(sts.len == 1);
     assert(sts.sts[0].token.token == T_IF);
 
-    // exp_if *exp = sts.sts[0].exp.exp;
-    // exp_inflix *cond = exp->condition.exp;
+    exp_if *exp = sts.sts[0].exp.exp;
+    exp_inflix *cond = exp->condition.exp;
+    exp->condition.print_fn(buf, exp->condition.exp);
+    assert(str_cmp_char(buf, "(x > y)"));
+    str_reset(buf);
+
+    assert(exp->consequence.len == 2); // return, x, let;
+    assert(exp->alternative.len == 2); // return, y;
 }
 
 int main(int argc, char *argv[])

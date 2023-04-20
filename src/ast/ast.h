@@ -25,7 +25,20 @@ typedef struct {
     statement *sts;
 } statements;
 
-// expressions
+// expressions and statements;
+
+typedef struct
+{
+    token token;
+    char *name;
+    header value;
+} let_statement;
+
+typedef struct
+{
+    token token;
+    header value;
+} return_statement;
 
 typedef struct
 {
