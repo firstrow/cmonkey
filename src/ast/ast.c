@@ -311,6 +311,33 @@ static int parse_expression_statement(statement *s)
     return -1;
 }
 
+static statement parse_statement()
+{
+    statement s = {0};
+
+    switch (curr_token.token) {
+    case T_LET:
+        if (!parse_let_statement(&s)) {
+            printf("ERROR: failed to parse let statement\r\n");
+            abort();
+        }
+        break;
+    case T_RETURN:
+        if (!parse_return_statement(&s)) {
+            printf("ERROR: failed to parse return statement\r\n");
+            abort();
+        }
+        break;
+    default:
+        if (!parse_expression_statement(&s)) {
+            printf("ERROR: failed to parse expression statement\r\n");
+            abort();
+        }
+        break;
+    }
+    return s;
+}
+
 void print_sts(statements sts)
 {
     str *buf = str_new(NULL);
@@ -340,28 +367,7 @@ statements ast_parse(lexer *lex)
     tokens_advance();
 
     while (curr_token.token != T_EOF) {
-        statement s = {0};
-
-        switch (curr_token.token) {
-        case T_LET:
-            if (!parse_let_statement(&s)) {
-                printf("ERROR: failed to parse let statement\r\n");
-                abort();
-            }
-            break;
-        case T_RETURN:
-            if (!parse_return_statement(&s)) {
-                printf("ERROR: failed to parse return statement\r\n");
-                abort();
-            }
-            break;
-        default:
-            if (!parse_expression_statement(&s)) {
-                printf("ERROR: failed to parse expression statement\r\n");
-                abort();
-            }
-            break;
-        }
+        statement s = parse_statement();
 
         if (s.token.token > 0)
             add_statement(&result, s);
