@@ -49,55 +49,6 @@ static void print_let_exp(str *buf, exp *e)
     str_appendf(buf, "%s", "TODO PRINT LET EXP");
 }
 
-static int parse_let_statement(statement *s)
-{
-    s->token = curr_token;
-    s->literal = strdup(curr_token.literal);
-
-    if (!expect_next_token(T_IDENT))
-        return error("failed T_IDENT check");
-
-    tokens_advance();
-    let_statement *e = malloc(sizeof(let_statement));
-    e->token = curr_token;
-    e->name = strdup(curr_token.literal);
-
-    if (!expect_next_token(T_ASSIGN))
-        return error("failed T_ASSIGN check");
-
-    tokens_advance(); // =
-    tokens_advance(); // expression
-
-    e->value = parse_expression(P_LOWEST);
-
-    s->exp = (header){
-        .print_fn = &print_let_exp,
-        .exp = e,
-    };
-
-    if (next_token.token == T_SEMICOLON)
-        tokens_advance();
-
-    return -1;
-}
-
-static int parse_return_statement(statement *s)
-{
-    s->token = curr_token;
-    s->literal = strdup(curr_token.literal);
-
-    tokens_advance();
-    return_statement *e = malloc(sizeof(return_statement));
-    e->token = curr_token;
-    e->value = parse_expression(P_LOWEST);
-
-    // TODO: check for EOF
-    while (curr_token.token != T_SEMICOLON && !l->eof)
-        tokens_advance();
-
-    return -1;
-}
-
 static precedence precedence_by_token(token t)
 {
     switch (t.token) {
@@ -161,6 +112,55 @@ static void print_ident_exp(str *buf, exp *exp)
 {
     exp_identifier *e = exp;
     str_appendf(buf, "%s", e->value);
+}
+
+static int parse_let_statement(statement *s)
+{
+    s->token = curr_token;
+    s->literal = strdup(curr_token.literal);
+
+    if (!expect_next_token(T_IDENT))
+        return error("failed T_IDENT check");
+
+    tokens_advance();
+    let_statement *e = malloc(sizeof(let_statement));
+    e->token = curr_token;
+    e->name = strdup(curr_token.literal);
+
+    if (!expect_next_token(T_ASSIGN))
+        return error("failed T_ASSIGN check");
+
+    tokens_advance(); // =
+    tokens_advance(); // expression
+
+    e->value = parse_expression(P_LOWEST);
+
+    s->exp = (header){
+        .print_fn = &print_let_exp,
+        .exp = e,
+    };
+
+    if (next_token.token == T_SEMICOLON)
+        tokens_advance();
+
+    return -1;
+}
+
+static int parse_return_statement(statement *s)
+{
+    s->token = curr_token;
+    s->literal = strdup(curr_token.literal);
+
+    tokens_advance();
+    return_statement *e = malloc(sizeof(return_statement));
+    e->token = curr_token;
+    e->value = parse_expression(P_LOWEST);
+
+    // TODO: check for EOF
+    while (curr_token.token != T_SEMICOLON && !l->eof)
+        tokens_advance();
+
+    return -1;
 }
 
 static header parse_integer_expression()
