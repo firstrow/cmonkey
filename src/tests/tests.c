@@ -428,7 +428,7 @@ static void test_inflix_expression_strings()
 
 static void test_if_expression()
 {
-    char *input = "if (x > y) { return x } else { return y };";
+    char *input = "if (x > y) { return x; let a = 10; } else { return y };";
 
     lexer l = lexer_new(input);
     statements sts = ast_parse(&l);

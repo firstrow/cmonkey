@@ -14,6 +14,7 @@ static token curr_token;
 static token next_token;
 
 static header parse_expression(precedence);
+static statement parse_statement();
 
 typedef header (*parse_fn)();
 typedef header (*parse_inflix_fn)(header);
@@ -211,6 +212,33 @@ static header parse_group_expression()
     return exp;
 }
 
+static statements parse_block()
+{
+    statements sts = {
+        .len = 0,
+        .sts = malloc(sizeof(statement) * arr_cap),
+    };
+
+    for (;;) {
+        if (l->eof)
+            break;
+        if (curr_token.token == T_RBRACE) {
+
+            tokens_advance();
+            break;
+        }
+
+        statement s = parse_statement();
+
+        if (s.token.token == 0)
+            return sts;
+
+        add_statement(&sts, s);
+        tokens_advance();
+    }
+
+    return sts;
+}
 static header parse_if_expression()
 {
     tokens_advance();
@@ -231,6 +259,14 @@ static header parse_if_expression()
         return (header){.exp = NULL};
 
     tokens_advance();
+
+    e->consequence = parse_block();
+
+    if (curr_token.token == T_ELSE) {
+        tokens_advance();
+        tokens_advance();
+        e->alternative = parse_block();
+    }
 
     return (header){
         .print_fn = &print_if_exp,
@@ -314,7 +350,6 @@ static int parse_expression_statement(statement *s)
 static statement parse_statement()
 {
     statement s = {0};
-
     switch (curr_token.token) {
     case T_LET:
         if (!parse_let_statement(&s)) {
