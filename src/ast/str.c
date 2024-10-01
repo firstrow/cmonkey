@@ -11,7 +11,7 @@ str *str_new(char *initial_value)
     str *s = malloc(sizeof(str));
     s->cap = 128;
     s->len = 0;
-    s->data = malloc(sizeof(char) * 128);
+    s->data = calloc(sizeof(char), 128);
 
     if (initial_value != NULL && strlen(initial_value))
         str_appendf(s, "%s", initial_value);
